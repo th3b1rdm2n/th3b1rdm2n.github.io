@@ -1,0 +1,44 @@
+# IDE
+**/.code-workspace
+**/.idea
+**/.vscode/
+!**/.vscode/extensions.json
+!**/.vscode/settings.json
+
+# Go
+**/*.out
+**/*.test
+**/vendor/
+
+# Hugo
+**/resources
+**/public
+
+# JavaScript
+**/.angular/
+**/.next/
+**/.node_repl_history
+**/.npm
+**/.nuxt/
+**/.parcel-cache/
+**/.temp
+**/.vue-cli-service/
+**/*.js.map
+**/*.min.js
+**/*.ts.map
+**/*.tsbuildinfo
+**/coverage/
+**/dist/
+**/e2e/
+**/node_modules/
+**/npm-debug.log
+**/package-lock.json
+**/public/
+**/yarn-debug.log
+**/yarn-error.log
+
+# Miscellaneous
+**/*.bak
+**/*.log
+**/*.swp
+**/.env
