@@ -13,7 +13,7 @@ tags: [
 ]
 categories: ["Publication"]
 aliases: ["welcome"]
-thumbnail: "images/banner-welcome.png"
+thumbnail: "images/banner-welcome.webp"
 ---
 
 > *"The deeper your understanding of people, processes, and products, the more elegantly you can shape, subvert, and secure them."* — Bírd Màn  
