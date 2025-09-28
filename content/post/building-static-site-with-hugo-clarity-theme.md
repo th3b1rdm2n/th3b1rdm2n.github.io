@@ -3,7 +3,7 @@ author: "Bírd Màn"
 title: "Building Static Site with Hugo Clarity Theme"
 date: "2025-09-26"
 description: "A guide to building elegant static sites."
-summary: "This guide outlines the process of building and deploying a static website using Hugo and the Clarity theme, managed via Git and automatically deployed to GitHub Pages with a custom domain"
+summary: "This guide outlines the process of building and deploying a static website using Hugo and the Clarity theme, managed via Git and automatically deployed to GitHub Pages with a custom domain."
 featured: true
 tags: ["Technology", "Engineering"]
 categories: ["Research"]
@@ -235,10 +235,7 @@ git push -u "$GIT_REMOTE_NAME" "$GIT_MAIN_BRANCH" # Push production branch to re
 ```
 _Customize the Project_  
 We'll then configure pre-commit hooks to ensure code quality, add a .gitignore file to exclude unnecessary files, add a CNAME file for `gh-pages` to use custom domain, copy the theme's exampleSite and icons folder into the project root and static folders respectively, update the images of the icons folder, and modification to various files as shown in the walkthrough video.
-<video width="640" height="360" controls unmuted>
-  <source src="/videos/building-static-site-with-hugo-clarity-theme.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+{{< youtube 9x-HFRXL2yM >}}
 
 ```shell
 

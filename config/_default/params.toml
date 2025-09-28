@@ -127,10 +127,10 @@ blogDir = "post"
 
 
 # Maximum number of recent posts. (default: 8)
-# numberOfRecentPosts = 8
+numberOfRecentPosts = 3
 
 # Maximum number of featured posts. (default: 8)
-# numberOfFeaturedPosts = 8
+numberOfFeaturedPosts = 3
 
 # Pin featured posts in list.
 # pinFeatured = true
