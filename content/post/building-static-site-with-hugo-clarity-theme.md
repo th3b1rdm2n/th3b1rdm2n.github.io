@@ -253,6 +253,7 @@ repos:
   - id: gitleaks
 EOF
 pre-commit install # Install pre-commit hooks
+pre-commit autoupdate # Update hook repos to latest version
 pre-commit run --all-files # Run pre-commit hooks on all files
 
 # add .gitignore file
