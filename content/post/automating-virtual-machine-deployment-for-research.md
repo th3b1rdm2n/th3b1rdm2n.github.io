@@ -1,7 +1,7 @@
 ---
 author: "Bírd Màn"
 title: "Automating Virtual Machine Deployment for Research"
-date: "2025-10-03"
+date: "2025-10-04"
 description: "Learn how to automate the deployment of virtual machines for research purposes using CentOS, Debian, and Ubuntu with the virsh command and custom configuration files."
 summary: "Streamline your research environment setup by automating deployment of CentOS, Debian, and Ubuntu virtual machines with minimal manual intervention."
 tags: ["Technology", "Engineering", "Automation", "Tools"]
@@ -10,9 +10,9 @@ aliases: ["automating-virtual-machine-deployment-for-research"]
 thumbnail: "images/banner-automating-virtual-machine-deployment-for-research.webp"
 ---
 
-Setting up virtual machines (VMs) unprogrammatically can be a tedious task. In this article, we’ll walk through how to automate the creation of VMs for CentOS, Debian, and Ubuntu using a simple script. This method saves time and ensure consistency across your research infrastructure.
+Setting up virtual machines (VMs) interactively can be a tedious task. In this article, we’ll walk through how to automate the creation of VMs for CentOS, Debian, and Ubuntu using a simple script. This method saves time and ensure consistency across your research infrastructure.
 
-We have coded a bash script with `install_virtualization_packages` function to install virtualization packages, another function `setup_storage_pools` to define and create storage folders where our ISO and disk files are stored, and finally `deploy_virtual_machine` function which automates the deployment of virtual machines with minimal manual interaction. The `deploy_virtual_machine` function uses `virt-install` for creating and managing VMs on Linux-based systems using KVM (Kernel-based Virtual Machine) and libvirt, `cloud-init`, `preseed` and `kickstart` files to streamline the process of configuring the VMs with specific settings.
+We have developed a bash script with `install_virtualization_packages` function to install virtualization packages, another function `setup_storage_pools` to define and create storage folders where our ISO and disk files are stored, and finally `deploy_virtual_machine` function which automates the deployment of virtual machines with minimal manual interaction. The `deploy_virtual_machine` function uses `virt-install` for creating and managing VMs on Linux-based systems using KVM (Kernel-based Virtual Machine) and libvirt, `cloud-init`, `preseed` and `kickstart` files to streamline the process of configuring the VMs with specific settings.
 
 #### The `install_virtualization_packages` Function
 
@@ -20,8 +20,10 @@ Before creating virtual machines, we need to ensure our host system has all the 
 
 ```bash
 install_virtualization_packages() {
+  # Define core variables
   local pkgs service_name distro
 
+  # Detect the distro name from /etc/os-release, or exit if unavailable
   if [ -f /etc/os-release ]; then
     distro=$(grep -oP '(?<=^ID=).*' /etc/os-release | tr -d '"')
   else
@@ -29,25 +31,30 @@ install_virtualization_packages() {
     return 1
   fi
 
+  # Install virtualization packages based on detected distro
   case "$distro" in
     ubuntu|debian)
+      # Core virtualization/GUI packages on Debian/Ubuntu
       pkgs="virt-manager bridge-utils libosinfo-bin libvirt-daemon-system libvirt-clients qemu-kvm cloud-image-utils"
       service_name="libvirtd"
       sudo apt-get -y update
       sudo apt-get install -y $pkgs
       ;;
     fedora|rhel|centos)
+      # Install Fedora/RHEL/CentOS virtualization group
       pkgs="virt-viewer qemu-kvm libvirt libvirt-daemon"
       service_name="libvirtd"
       sudo dnf -y update
       sudo dnf install -y $pkgs
       ;;
     arch)
+      # Install virtualization packages on Arch
       pkgs="virt-manager libvirt qemu edk2-ovmf"
       service_name="libvirtd"
       sudo pacman -Sy --noconfirm $pkgs
       ;;
     opensuse*|suse)
+      # Install virtualization packages on openSUSE
       pkgs="virt-manager libvirt-daemon libosinfo"
       service_name="libvirtd"
       sudo zypper install -y $pkgs
@@ -58,7 +65,10 @@ install_virtualization_packages() {
       ;;
   esac
 
+  # Add user to libvirt and kvm groups
   sudo usermod -aG libvirt $USER
+
+  # Restart the virtualization service
   sudo systemctl restart "$service_name"
 
   echo "Virtualization tools installed. Service restarted. You may need to re-login for group changes."
@@ -81,10 +91,12 @@ The next step is configuring storage locations for VM ISO and disk files. The `s
 
 ```bash
 setup_storage_pools() {
+  # Define user, group, and base directory
   local user="$(id -un)"
   local group="$(id -gn)"
   local base_dir="/media/${user}/CARD"
 
+  # Fix ownership and permissions on base directory or exit if missing
   if [[ -d "$base_dir" ]]; then
     sudo chown -R "$user:$group" "$base_dir"
     sudo chmod -R u+rwX "$base_dir"
@@ -93,11 +105,13 @@ setup_storage_pools() {
     return 1
   fi
 
+  # Define storage pools and paths
   declare -A pools=(
     ["card_images"]="${base_dir}/images"
     ["card_machines"]="${base_dir}/machines"
   )
 
+  # Create and activate libvirt storage pools
   for name in "${!pools[@]}"; do
     local path="${pools[$name]}"
     mkdir -p "$path"
@@ -284,12 +298,9 @@ EOF
       local meta_data="${tmpdir}/meta-data"
       cat > "$user_data" <<EOF
 #cloud-config
-runcmd:
-  - echo "$(cat /proc/cmdline) autoinstall" > /root/cmdline
-  - mount -n --bind -o ro /root/cmdline /proc/cmdline
-  - snap restart subiquity.subiquity-server
 autoinstall:
   version: 1
+  interactive-sections: []
 
   # Set hostname, default username, and hashed password
   identity:
@@ -315,47 +326,57 @@ autoinstall:
   # Configure language, locale, and system timezone
   locale: en_US.UTF-8
   timezone: Africa/Lagos
-
-  # Enable guest/agent services so they start immediately and on reboot
-  late-commands:
-    - while [ ! -f /run/finish-late ]; do sleep 1; done
-    - curtin in-target -- mkdir -p /home/${username}/.ssh
-    - curtin in-target -- echo "$(cat "$ssh_pub_key")" > /home/${username}/.ssh/authorized_keys
-    - curtin in-target -- chmod 600 /home/${username}/.ssh/authorized_keys
-    - curtin in-target -- chmod 700 /home/${username}/.ssh
-    - curtin in-target -- chown -R ${username}:${username} /home/${username}/.ssh
-    - curtin in-target -- apt-get update
-    - curtin in-target -- apt-get install -y qemu-guest-agent spice-vdagent -qq
-    - curtin in-target -- systemctl enable --now ssh
-    - curtin in-target -- systemctl start ssh qemu-guest-agent spice-vdagent
   user-data:
-    package_update: true
-    package_upgrade: true
     disable_root: false
+    users:
+      - name: root
+        passwd: ${root_passwd_hash}
+        lock_passwd: false
+    runcmd:
+      - bash -c "mkdir -p /home/${username}/.ssh && echo '${ssh_public_key}' > /home/${username}/.ssh/authorized_keys && chmod 600 /home/${username}/.ssh/authorized_keys && chown -R ${username}:${username} /home/${username}/.ssh"
+      - apt-get install -y qemu-guest-agent spice-vdagent -qq
+      - systemctl enable --now ssh
+      - systemctl start qemu-guest-agent spice-vdagent
 EOF
       cat > "$meta_data" <<EOF
 instance-id: $name
 local-hostname: $name
 EOF
-      cloud-localds "$seed_iso" "$user_data" "$meta_data" || return 1
+      # cloud-localds "$seed_iso" "$user_data" "$meta_data" || return 1
+      genisoimage -output "$seed_iso" -volid cidata -joliet -rock "$user_data" "$meta_data"  || return 1
       ;;
 
     debian)
-      local preseed="${tmpdir}/preseed.cfg"
+      local debian_codename="" apt_mirror="mirror.litnet.lt" preseed="${tmpdir}/preseed.cfg"
+      if [[ "$os_variant" =~ debian([0-9]+) ]]; then
+        case "${BASH_REMATCH[1]}" in
+          13) debian_codename="trixie" ;;
+          12) debian_codename="bookworm" ;;
+          11) debian_codename="bullseye" ;;
+          10) debian_codename="buster" ;;
+          *) debian_codename="stable" ;;
+        esac
+      fi
+      echo "Using Debian Suite: $debian_suite"
       cat > "$preseed" <<EOF
-# Only show critical installer prompts, suppressing non-essential ones
-d-i debian-installer/add-kernel-opts string auto=true priority=critical
+# Language and System Selection
+d-i debian-installer/language string en
+d-i debian-installer/country string NG
+d-i debian-installer/locale string en_US.UTF-8
 
-# Set system locale to US English and keyboard layout to US
-d-i debian-installer/locale string en_US
+# Keyboard Selection
+d-i console-setup/ask_detect boolean false
 d-i keyboard-configuration/xkb-keymap select us
+
+# Date and Time Selection 
+d-i clock-setup/utc boolean true
+d-i time/zone string Africa/Lagos
 
 # Auto-select network interface, set hostname, and configure timezone
 d-i netcfg/choose_interface select auto
 d-i netcfg/get_hostname string ${name}
-d-i time/zone string Africa/Lagos
 
-# Enable root login, set hashed root/user passwords, and configure username
+# Account Setup
 d-i passwd/root-login boolean true
 d-i passwd/root-password-crypted password ${root_passwd_hash}
 d-i passwd/user-fullname string ${username}
@@ -386,11 +407,9 @@ d-i apt-setup/disable-cdrom-entries boolean true
 
 # Enable APT mirror without specifying a country
 d-i apt-setup/use_mirror boolean true
-d-i mirror/suite string stable
-d-i mirror/protocol string https
-d-i mirror/http/mirror string mirror.litnet.lt
+d-i mirror/http/mirror string deb.debian.org
 d-i mirror/http/directory string /debian
-d-i mirror/confirm boolean true
+d-i mirror/protocol string http
 
 # Enable components and services
 d-i apt-setup/services-select multiselect security, updates
@@ -398,15 +417,16 @@ d-i apt-setup/contrib boolean true
 d-i apt-setup/non-free boolean true
 d-i apt-setup/non-free-firmware boolean true
 
-# Package selection
+# Disable package selection
 d-i pkgsel/run_tasksel boolean false
 
-# GRUB installation: auto-confirm, even if other OS detected
+# GRUB installation
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/bootdev string default
 
 # Configure sudo, install essentials, and set up SSH
 d-i preseed/late_command string echo "${username} ALL=(ALL:ALL) ALL" > /target/etc/sudoers.d/users; \
+  echo -e "deb https://${apt_mirror}/debian/ ${debian_codename} main non-free-firmware\ndeb https://${apt_mirror}/debian/ ${debian_codename}-updates main\ndeb https://${apt_mirror}/debian-security/ ${debian_codename}-security main non-free-firmware" > /target/etc/apt/sources.list; \
   in-target apt-get update -y; \
   in-target apt-get install -y git openssh-server spice-vdagent -qq; \
   in-target mkdir -p /home/${username}/.ssh; \
@@ -416,7 +436,7 @@ d-i preseed/late_command string echo "${username} ALL=(ALL:ALL) ALL" > /target/e
   in-target chown -R ${username}:${username} /home/${username}/.ssh; \
   in-target systemctl enable sshd; \
   in-target systemctl start sshd; \
-  in-target systemctl start spice-vdagent
+  in-target systemctl start spice-vdagentd
 
 # Suppresses confirmation on installation completion and enable automatic reboot
 d-i finish-install/reboot_in_progress note
@@ -456,8 +476,7 @@ autopart --type=lvm
 
 # Install required package groups and utilities
 %packages
-@gnome-desktop
-@core
+@^Server with GUI
 @development
 @network-tools
 curl
@@ -508,12 +527,15 @@ EOF
   local install_source=()
   
   if [[ "$os_family" == "ubuntu" ]]; then
-    install_source=(--cdrom "$iso_path")
-    # No --extra-args for Ubuntu
+    # 100%
+    install_source=(--location "$iso_path,kernel=casper/vmlinuz,initrd=casper/initrd" 
+      --initrd-inject="$user_data" --initrd-inject="$meta_data")
+    extra_args="quiet autoinstall ds=nocloud\;s=/cdrom/"
   elif [[ "$os_family" == "debian" ]]; then
     install_source=(--location "$iso_path" --initrd-inject="$preseed")
     extra_args="auto=true priority=critical preseed/file=/preseed.cfg"
   elif [[ "$os_family" == "rhel" ]]; then
+    # 100%
     install_source=(--location "$iso_path")
     extra_args="inst.ks=cdrom:/ks.cfg"
   fi
@@ -532,6 +554,8 @@ EOF
     --graphics vnc
     --network network=${network_name},model=virtio
     --noautoconsole
+    --hvm
+    --virt-type kvm
     --autostart
   )
   

@@ -70,16 +70,6 @@ git switch development
 
 ---
 
-#### Step 5: Verify It's Working
-
-Visit your site in a browser.
-
-Go back to Google Analytics → Admin → Realtime.
-
-You should see active users show up almost instantly.
-
----
-
 #### You're All Set 🎉
 
 Now that Google Analytics is integrated, your Hugo site can give you insights into:
@@ -91,9 +81,5 @@ Now that Google Analytics is integrated, your Hugo site can give you insights in
 
 It’s a small step for your site, but a giant leap for understanding your audience.
 
-Stay tuned for more ways to level up your static site game. Until next time!
-
----
-
 For the full walkthrough, here’s a companion video:  
-{{< youtube Yk1yKzEp3C4 >}}
+{{< youtube uR8SzMnxLB0 >}}
