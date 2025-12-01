@@ -4,8 +4,8 @@ title: "Automating Virtual Machine Deployment for Research"
 date: "2025-10-04"
 description: "Learn how to automate the deployment of virtual machines for research purposes using CentOS, Debian, and Ubuntu with the virsh command and custom configuration files."
 summary: "Streamline your research environment setup by automating deployment of CentOS, Debian, and Ubuntu virtual machines with minimal manual intervention."
-tags: ["Technology", "Engineering", "Automation", "Tools"]
-categories: ["Research"]
+tags: ["Technology", "Automation"]
+categories: ["Engineering"]
 aliases: ["automating-virtual-machine-deployment-for-research"]
 thumbnail: "images/banner-automating-virtual-machine-deployment-for-research.webp"
 ---

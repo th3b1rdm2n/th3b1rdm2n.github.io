@@ -4,8 +4,8 @@ title: "Setting Up Professional Email for Your Static Site"
 date: "2025-09-27"
 description: "Setting Up Custom Domain Email."
 summary: "Elevate your brand's credibility and strengthen your online presence with professional email accounts that match your custom domain for your static site."
-tags: ["Technology", "Engineering"]
-categories: ["Research"]
+tags: ["Technology", "Tools"]
+categories: ["Engineering"]
 aliases: ["setting-up-professional-email-for-your-static-site"]
 thumbnail: "images/banner-setting-up-professional-email-for-your-static-site.webp"
 ---

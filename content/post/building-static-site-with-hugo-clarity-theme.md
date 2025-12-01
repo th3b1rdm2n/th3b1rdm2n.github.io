@@ -5,8 +5,8 @@ date: "2025-09-26"
 description: "A guide to building elegant static sites."
 summary: "This guide outlines the process of building and deploying a static website using Hugo and the Clarity theme, managed via Git and automatically deployed to GitHub Pages with a custom domain."
 featured: true
-tags: ["Technology", "Engineering"]
-categories: ["Research"]
+tags: ["Technology"]
+categories: ["Engineering"]
 aliases: ["building-static-site-with-hugo-clarity-theme"]
 thumbnail: "images/banner-building-static-site-with-hugo-clarity-theme.webp"
 ---

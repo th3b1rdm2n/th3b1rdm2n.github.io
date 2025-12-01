@@ -4,8 +4,8 @@ title: "Integrating Analytics to Your Static Site"
 date: "2025-10-03"
 description: "Track and understand your visitors with Google Analytics."
 summary: "Integrate Google Analytics into your Hugo-powered static site and start gathering insights into your audience’s behavior."
-tags: ["Technology", "Engineering"]
-categories: ["Research"]
+tags: ["Technology", "Tools"]
+categories: ["Engineering"]
 aliases: ["integrating-analytics-to-your-static-site"]
 thumbnail: "images/banner-integrating-analytics-to-your-static-site.webp"
 ---
